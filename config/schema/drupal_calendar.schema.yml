@@ -1,0 +1,16 @@
+drupal_calendar.settings:
+  type: config_object
+  label: 'Drupal Calendar settings'
+  mapping:
+    ics_storage:
+      type: string
+      label: 'ICS file storage method'
+    email_subject:
+      type: string
+      label: 'Invitation email subject'
+    email_body:
+      type: string
+      label: 'Invitation email body'
+    reminder_days:
+      type: integer
+      label: 'Reminder days before event'

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         stopOnFailure="false"
+         failOnWarning="true"
+         failOnRisky="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>./tests/src/Unit</directory>
+        </testsuite>
+        <testsuite name="Functional">
+            <directory>./tests/src/Functional</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory>./src/Service/</directory>
+        </include>
+    </coverage>
+    <php>
+        <env name="SIMPLETEST_BASE_URL" value="http://127.0.0.1:8888"/>
+        <env name="SIMPLETEST_DB" value=""/>
+    </php>
+</phpunit>

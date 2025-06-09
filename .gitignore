@@ -1,0 +1,41 @@
+# Ignore Composer dependencies
+/vendor/
+
+# Ignore Composer lock file (optional, if you want reproducible builds, keep it tracked)
+composer.lock
+
+# Ignore Drupal private files and settings
+/sites/*/files/
+/sites/*/private/
+/sites/*/settings.php
+
+# Ignore test output and coverage
+/test-output/
+/coverage/
+
+# Ignore IDE/editor/project files
+*.swp
+*.swo
+*.idea/
+*.vscode/
+.DS_Store
+
+# Ignore node_modules if using frontend build tools
+/node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore backup files
+*~
+
+# Ignore other build artifacts
+/build/
+/dist/
+
+# Ignore Drupal cache and temporary files
+.phpunit.result.cache
+build/
+
+# Ignore workflow-specific PHPUnit config
+# .github/phpunit.xml.dist

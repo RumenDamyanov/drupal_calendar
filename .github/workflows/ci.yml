@@ -1,0 +1,78 @@
+name: Drupal Calendar CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [8.3, 8.4]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: drupal
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo, pdo_mysql, gd, dom, curl, json, xml, simplexml, zip
+          ini-values: memory_limit=512M
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+      - name: Install Drupal
+        run: |
+          composer create-project drupal/recommended-project:11.x drupal --no-interaction
+          mkdir -p drupal/web/modules/custom/drupal_calendar
+          rsync -a --exclude='.git' --exclude='drupal' --exclude='vendor' --exclude='node_modules' ./ drupal/web/modules/custom/drupal_calendar/
+          cd drupal
+          composer require --dev drupal/core-dev
+          composer require --dev phpunit/phpunit
+          composer require drush/drush --no-interaction
+      - name: Set up Drupal test environment
+        run: |
+          cd drupal
+          vendor/bin/drush si --db-url=mysql://root:root@127.0.0.1:3306/drupal --account-name=admin --account-pass=admin --yes
+      - name: Enable Calendar module
+        run: |
+          cd drupal
+          vendor/bin/drush en drupal_calendar --yes
+      - name: Copy phpunit.xml.dist to Drupal site
+        run: |
+          cp .github/phpunit.xml.dist drupal/phpunit.xml.dist
+      - name: Clean PHPUnit cache
+        run: |
+          rm -f drupal/phpunit.result.cache
+      - name: Run PHPUnit tests
+        env:
+          SIMPLETEST_BASE_URL: "http://localhost"
+        run: |
+          cd drupal
+          vendor/bin/phpunit --configuration phpunit.xml.dist web/modules/custom/drupal_calendar/tests
+      - name: Run PHPUnit with coverage (Unit only)
+        env:
+          SIMPLETEST_BASE_URL: "http://localhost"
+        run: |
+          cd drupal
+          vendor/bin/phpunit --configuration phpunit.xml.dist --testsuite Unit --coverage-clover=coverage.xml
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     files: drupal/coverage.xml
+      #     flags: unittests
+      #     name: codecov-umbrella
+      #     fail_ci_if_error: true
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

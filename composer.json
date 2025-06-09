@@ -1,0 +1,23 @@
+{
+  "name": "drupal/drupal-calendar",
+  "description": "Drupal 11 module for calendar event creation, ICS generation, and event management.",
+  "type": "drupal-module",
+  "require": {
+    "php": ">=8.3",
+    "rumenx/php-calendar": "^1.0.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "minimum-stability": "beta",
+  "prefer-stable": true,
+  "autoload": {
+    "psr-4": {
+      "Drupal\\drupal_calendar\\": "src/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --testsuite Unit",
+    "coverage": "phpunit --testsuite Unit --coverage-text"
+  }
+}
