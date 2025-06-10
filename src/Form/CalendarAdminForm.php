@@ -1,10 +1,18 @@
 <?php
+
 namespace Drupal\drupal_calendar\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ * Admin configuration form for Drupal Calendar settings.
+ *
+ * Allows administrators to configure ICS storage, email templates,
+ * and reminders.
+ */
 class CalendarAdminForm extends ConfigFormBase {
+
   /**
    * {@inheritdoc}
    */
@@ -20,7 +28,15 @@ class CalendarAdminForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Builds the admin settings form for the calendar module.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return array
+   *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('drupal_calendar.settings');
@@ -58,7 +74,12 @@ class CalendarAdminForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Handles submission of the admin settings form.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('drupal_calendar.settings')
@@ -69,4 +90,5 @@ class CalendarAdminForm extends ConfigFormBase {
       ->save();
     parent::submitForm($form, $form_state);
   }
+
 }

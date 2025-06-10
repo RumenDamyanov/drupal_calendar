@@ -1,10 +1,19 @@
 <?php
+
 namespace Drupal\drupal_calendar\Form;
 
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ * Form for creating and editing calendar events.
+ *
+ * Provides a form for users to create, edit, and manage calendar events,
+ * including invitations, RSVP, recurrence, and entity attachment.
+ */
 class CalendarEventForm extends FormBase {
+
   /**
    * {@inheritdoc}
    */
@@ -13,7 +22,15 @@ class CalendarEventForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Builds the calendar event form.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return array
+   *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['title'] = [
@@ -48,7 +65,7 @@ class CalendarEventForm extends FormBase {
         '' => '- None -',
         'node' => 'Content (Node)',
         'user' => 'User',
-        // Add more entity types as needed
+        // Add more entity types as needed.
       ],
       '#description' => 'Optionally attach this event to a Drupal entity.',
     ];
@@ -106,7 +123,12 @@ class CalendarEventForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Handles form submission for calendar events.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $event = [
@@ -126,23 +148,24 @@ class CalendarEventForm extends FormBase {
     $ics = \Drupal::service('drupal_calendar.calendar_service')->generateIcs($event);
     // Get admin setting for ICS storage.
     $ics_storage = \Drupal::config('drupal_calendar.settings')->get('ics_storage') ?: 'entity';
-    // Store event log (for now, use state API; later, use entity or custom table)
+    // Store event log (use state API; later, use entity or custom table)
     $events = \Drupal::state()->get('drupal_calendar.events', []);
     $event['ics'] = $ics;
     $event['created'] = time();
     // Store creator email when event is created (if available)
     $current_user = \Drupal::currentUser();
     $event['creator_email'] = $current_user->getEmail() ?: \Drupal::config('system.site')->get('mail');
-    // Handle ICS storage
+    // Handle ICS storage.
     if ($ics_storage === 'static') {
-      // Save ICS as static file in public://drupal-calendar/
+      // Save ICS as static file in public://drupal-calendar/.
       $directory = 'public://drupal-calendar';
-      \Drupal::service('file_system')->prepareDirectory($directory, \Drupal\Core\File\FileSystemInterface::CREATE_DIRECTORY | \Drupal\Core\File\FileSystemInterface::MODIFY_PERMISSIONS);
+      \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
       $filename = $directory . '/event_' . time() . '.ics';
       file_put_contents(\Drupal::service('file_system')->realpath($filename), $ics);
       $event['ics_file'] = $filename;
-    } elseif ($ics_storage === 'email') {
-      // Send ICS as email attachment to site mail
+    }
+    elseif ($ics_storage === 'email') {
+      // Send ICS as email attachment to site mail.
       $mailManager = \Drupal::service('plugin.manager.mail');
       $module = 'drupal_calendar';
       $key = 'event_ics';
@@ -155,7 +178,7 @@ class CalendarEventForm extends FormBase {
         'filemime' => 'text/calendar',
       ];
       $langcode = \Drupal::currentUser()->getPreferredLangcode();
-      $send = true;
+      $send = TRUE;
       $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
 
       // Send invitations if attendees are provided and email mode is enabled.
@@ -189,12 +212,17 @@ class CalendarEventForm extends FormBase {
     }
     $events[] = $event;
     \Drupal::state()->set('drupal_calendar.events', $events);
-    // Display message
+    // Display message.
     \Drupal::messenger()->addMessage('Event created and ICS generated.');
   }
 
   /**
-   * {@inheritdoc}
+   * Validates the calendar event form.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     if (empty($form_state->getValue('title'))) {
@@ -202,7 +230,8 @@ class CalendarEventForm extends FormBase {
     }
     if (empty($form_state->getValue('date'))) {
       $form_state->setErrorByName('date', 'Event date is required.');
-    } elseif (strtotime($form_state->getValue('date')) < time()) {
+    }
+    elseif (strtotime($form_state->getValue('date')) < time()) {
       $form_state->setErrorByName('date', 'Event date must be in the future.');
     }
     $attendees = array_filter(array_map('trim', explode("\n", $form_state->getValue('attendees'))));
@@ -212,7 +241,10 @@ class CalendarEventForm extends FormBase {
       }
     }
     if ($form_state->getValue('entity_type') && empty($form_state->getValue('entity_id'))) {
-      $form_state->setErrorByName('entity_id', 'Entity ID is required if entity type is selected.');
+      $form_state->setErrorByName(
+        'entity_id',
+        'Entity ID is required if entity type is selected.'
+      );
     }
   }
 

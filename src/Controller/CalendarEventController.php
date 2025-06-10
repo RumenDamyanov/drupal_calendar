@@ -1,23 +1,31 @@
 <?php
+
 namespace Drupal\drupal_calendar\Controller;
 
-use Drupal\Core\Url;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 require_once DRUPAL_ROOT . '/vendor/autoload.php';
 
 /**
- * Calendar event controller for drupal-calendar.
+ * Controller for calendar event management and API endpoints.
+ *
+ * Handles event listing, ICS download, RSVP, FE calendar, logs, and REST API.
  */
 class CalendarEventController {
+  /**
+   * The calendar service.
+   *
+   * @var \Drupal\drupal_calendar\Service\CalendarService
+   */
   protected $calendarService;
 
   /**
-   * Constructor.
-   * @param $calendarService \Drupal\drupal_calendar\Service\CalendarService
+   * Constructs a CalendarEventController object.
+   *
+   * @param \Drupal\drupal_calendar\Service\CalendarService $calendarService
+   *   The calendar service.
    */
   public function __construct($calendarService) {
     $this->calendarService = $calendarService;
@@ -25,7 +33,12 @@ class CalendarEventController {
 
   /**
    * Factory method for dependency injection.
-   * @param $container \Symfony\Component\DependencyInjection\ContainerInterface
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container.
+   *
+   * @return static
+   *   Returns an instance of the controller.
    */
   public static function create($container) {
     return new static(
@@ -33,8 +46,14 @@ class CalendarEventController {
     );
   }
 
+  /**
+   * Lists all calendar events in a table.
+   *
+   * @return array
+   *   A render array for the events table.
+   */
   public function listEvents() {
-    // Fallback: Use static property for demo/testing if \Drupal is not available.
+    // Fallback: Use static property for testing if \Drupal is not available.
     static $static_events = [];
     $events = $static_events;
     if (function_exists('drupal_container') && drupal_container()->has('state')) {
@@ -62,17 +81,21 @@ class CalendarEventController {
           if (isset($event['rsvps'][$attendee])) {
             if ($event['rsvps'][$attendee] === 'yes') {
               $yes++;
-            } elseif ($event['rsvps'][$attendee] === 'no') {
+            }
+            elseif ($event['rsvps'][$attendee] === 'no') {
               $no++;
             }
-          } else {
+          }
+          else {
             $pending++;
           }
         }
         $rsvp_summary = "Yes: $yes, No: $no, Pending: $pending";
-      } elseif (!empty($event['rsvp_enabled'])) {
+      }
+      elseif (!empty($event['rsvp_enabled'])) {
         $rsvp_summary = 'No responses yet.';
-      } else {
+      }
+      else {
         $rsvp_summary = '-';
       }
       $rows[] = [
@@ -85,7 +108,9 @@ class CalendarEventController {
             '#type' => 'link',
             '#title' => 'Download ICS',
             '#url' => $ics_url,
-            '#attributes' => ['target' => '_blank'],
+            '#attributes' => [
+              'target' => '_blank',
+            ],
           ],
         ],
         $rsvp_summary,
@@ -102,7 +127,7 @@ class CalendarEventController {
   }
 
   /**
-   * Download ICS file for an event.
+   * Downloads the ICS file for an event.
    *
    * @param int $event_id
    *   The event index in the log.
@@ -119,17 +144,23 @@ class CalendarEventController {
       }
     }
     if (!isset($events[$event_id]) || empty($events[$event_id]['ics'])) {
-      return new \Symfony\Component\HttpFoundation\Response('ICS not found', 404);
+      return new Response('ICS not found', 404);
     }
     $ics = $events[$event_id]['ics'];
-    $response = new \Symfony\Component\HttpFoundation\Response($ics);
+    $response = new Response($ics);
     $response->headers->set('Content-Type', 'text/calendar');
     $response->headers->set('Content-Disposition', 'attachment; filename="event.ics"');
     return $response;
   }
 
   /**
-   * RSVP handler for event invitations.
+   * Handles RSVP for event invitations.
+   *
+   * @param int $event_id
+   *   The event index in the log.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The RSVP response.
    */
   public function rsvp($event_id) {
     $request = Request::createFromGlobals();
@@ -139,13 +170,13 @@ class CalendarEventController {
       $container = call_user_func(['Drupal', 'getContainer']);
       $events = $container->get('state')->get('drupal_calendar.events', []);
       if (isset($events[$event_id]) && $events[$event_id]['rsvp_enabled']) {
-        // Show RSVP form (Yes/No) and current status if available
-        $current = isset($events[$event_id]['rsvps'][$email]) ? $events[$event_id]['rsvps'][$email] : null;
+        // Show RSVP form (Yes/No) and current status if available.
+        $current = $events[$event_id]['rsvps'][$email] ?? NULL;
         if ($request->getMethod() === 'POST') {
           $rsvp = $request->request->get('rsvp');
           $events[$event_id]['rsvps'][$email] = $rsvp;
           $container->get('state')->set('drupal_calendar.events', $events);
-          // Notify event creator if available
+          // Notify event creator if available.
           if (!empty($events[$event_id]['creator_email']) && filter_var($events[$event_id]['creator_email'], FILTER_VALIDATE_EMAIL)) {
             $params = [
               'subject' => 'RSVP Update for ' . $events[$event_id]['title'],
@@ -154,8 +185,9 @@ class CalendarEventController {
             $container->get('plugin.manager.mail')->mail('drupal_calendar', 'rsvp_update', $events[$event_id]['creator_email'], NULL, $params);
           }
           $response_message = 'Thank you for your response: ' . htmlspecialchars($rsvp) . '. You can update your RSVP at any time.';
-        } else {
-          // Show current RSVP status and allow change
+        }
+        else {
+          // Show current RSVP status and allow change.
           $status = $current ? '<p>Your current RSVP: <b>' . htmlspecialchars($current) . '</b></p>' : '';
           return new Response('<form method="POST">' .
             $status .
@@ -170,7 +202,10 @@ class CalendarEventController {
   }
 
   /**
-   * Frontend calendar view with switchable simple/advanced modes.
+   * Displays the frontend calendar view.
+   *
+   * @return array
+   *   A render array for the calendar view.
    */
   public function calendarView() {
     $request = \Drupal::request();
@@ -180,24 +215,27 @@ class CalendarEventController {
     $build = [];
     $build['switch'] = [
       '#markup' => '<a href="/calendar?view_mode=simple" style="' . ($mode === 'simple' ? 'font-weight:bold;' : '') . '">Simple List View</a>' .
-        '<a href="/calendar?view_mode=advanced" style="margin-left:10px;' . ($mode === 'advanced' ? 'font-weight:bold;' : '') . '">Calendar Grid View</a>',
+      '<a href="/calendar?view_mode=advanced" style="margin-left:10px;' . ($mode === 'advanced' ? 'font-weight:bold;' : '') . '">Calendar Grid View</a>',
     ];
     if ($mode === 'advanced') {
-      // Attach FullCalendar library
+      // Attach FullCalendar library.
       $build['#attached']['library'][] = 'drupal-calendar/fullcalendar';
-      // Prepare events for JS
+      // Prepare events for JS.
       $calendar_events = [];
       foreach ($events as $index => $event) {
-        // Handle recurring events: expand into multiple dates for display
+        // Handle recurring events: expand into multiple dates for display.
         $dates = [$event['date']];
-        if (!empty($event['recurring']) && $event['recurring_count'] > 1 && in_array($event['recurring_rule'], ['daily','weekly','monthly'])) {
+        if (!empty($event['recurring']) && $event['recurring_count'] > 1
+          && in_array($event['recurring_rule'], ['daily', 'weekly', 'monthly'])) {
           $base = strtotime($event['date']);
           for ($i = 1; $i < $event['recurring_count']; $i++) {
             if ($event['recurring_rule'] === 'daily') {
               $dates[] = date('Y-m-d\TH:i:s', strtotime("+{$i} day", $base));
-            } elseif ($event['recurring_rule'] === 'weekly') {
+            }
+            elseif ($event['recurring_rule'] === 'weekly') {
               $dates[] = date('Y-m-d\TH:i:s', strtotime("+{$i} week", $base));
-            } elseif ($event['recurring_rule'] === 'monthly') {
+            }
+            elseif ($event['recurring_rule'] === 'monthly') {
               $dates[] = date('Y-m-d\TH:i:s', strtotime("+{$i} month", $base));
             }
           }
@@ -217,8 +255,8 @@ class CalendarEventController {
       $build['#attached']['drupalSettings']['drupalCalendarEvents'] = $calendar_events;
       $build['calendar'] = [
         '#markup' => '<div id="calendar-advanced" style="max-width:900px;margin:40px auto;"></div>' .
-          '<div id="calendar-event-modal" style="display:none;position:fixed;top:20%;left:50%;transform:translate(-50%,0);background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,0.2);z-index:10001;max-width:400px;"></div>' .
-          '<div id="calendar-modal-backdrop" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10000;"></div>',
+        '<div id="calendar-event-modal" style="display:none;position:fixed;top:20%;left:50%;transform:translate(-50%,0);background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,0.2);z-index:10001;max-width:400px;"></div>' .
+        '<div id="calendar-modal-backdrop" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10000;"></div>',
       ];
       $build['#attached']['html_head'][] = [
         [
@@ -228,8 +266,9 @@ class CalendarEventController {
         ],
         'drupal-calendar-fullcalendar-enhanced',
       ];
-    } else {
-      // Simple list view
+    }
+    else {
+      // Simple list view.
       $rows = [];
       foreach ($events as $event) {
         $rows[] = [
@@ -249,7 +288,10 @@ class CalendarEventController {
   }
 
   /**
-   * Display the event/action logs.
+   * Displays the event/action logs.
+   *
+   * @return array
+   *   A render array for the logs table.
    */
   public function listLogs() {
     $logs = [];
@@ -278,15 +320,19 @@ class CalendarEventController {
   }
 
   /**
-   * REST API: List all events as JSON.
+   * REST API: Lists all events as JSON.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The JSON response with all events.
    */
   public function apiEvents() {
     try {
       $container = call_user_func(['Drupal', 'getContainer']);
       $events = $container->get('state')->get('drupal_calendar.events', []);
-      return new \Symfony\Component\HttpFoundation\JsonResponse(array_values($events));
-    } catch (\Exception $e) {
-      return new \Symfony\Component\HttpFoundation\JsonResponse([
+      return new JsonResponse(array_values($events));
+    }
+    catch (\Exception $e) {
+      return new JsonResponse([
         'error' => 'Internal server error',
         'details' => $e->getMessage(),
       ], 500);
@@ -294,21 +340,28 @@ class CalendarEventController {
   }
 
   /**
-   * REST API: Get a single event by ID as JSON.
+   * REST API: Gets a single event by ID as JSON.
+   *
+   * @param int $event_id
+   *   The event index in the log.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The JSON response with the event data or error.
    */
   public function apiEvent($event_id) {
     try {
       $container = call_user_func(['Drupal', 'getContainer']);
       $events = $container->get('state')->get('drupal_calendar.events', []);
       if (!isset($events[$event_id])) {
-        return new \Symfony\Component\HttpFoundation\JsonResponse([
+        return new JsonResponse([
           'error' => 'Event not found',
           'event_id' => $event_id,
         ], 404);
       }
-      return new \Symfony\Component\HttpFoundation\JsonResponse($events[$event_id]);
-    } catch (\Exception $e) {
-      return new \Symfony\Component\HttpFoundation\JsonResponse([
+      return new JsonResponse($events[$event_id]);
+    }
+    catch (\Exception $e) {
+      return new JsonResponse([
         'error' => 'Internal server error',
         'details' => $e->getMessage(),
       ], 500);
@@ -316,27 +369,34 @@ class CalendarEventController {
   }
 
   /**
-   * REST API: Get RSVPs for an event as JSON.
+   * REST API: Gets RSVPs for an event as JSON.
+   *
+   * @param int $event_id
+   *   The event index in the log.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The JSON response with RSVP data or error.
    */
   public function apiRsvps($event_id) {
     try {
       $container = call_user_func(['Drupal', 'getContainer']);
       $events = $container->get('state')->get('drupal_calendar.events', []);
       if (!isset($events[$event_id])) {
-        return new \Symfony\Component\HttpFoundation\JsonResponse([
+        return new JsonResponse([
           'error' => 'Event not found',
           'event_id' => $event_id,
         ], 404);
       }
       if (empty($events[$event_id]['rsvps'])) {
-        return new \Symfony\Component\HttpFoundation\JsonResponse([
+        return new JsonResponse([
           'error' => 'No RSVPs found for this event',
           'event_id' => $event_id,
         ], 404);
       }
-      return new \Symfony\Component\HttpFoundation\JsonResponse($events[$event_id]['rsvps']);
-    } catch (\Exception $e) {
-      return new \Symfony\Component\HttpFoundation\JsonResponse([
+      return new JsonResponse($events[$event_id]['rsvps']);
+    }
+    catch (\Exception $e) {
+      return new JsonResponse([
         'error' => 'Internal server error',
         'details' => $e->getMessage(),
       ], 500);

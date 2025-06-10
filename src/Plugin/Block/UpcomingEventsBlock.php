@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\drupal_calendar\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
@@ -7,7 +8,9 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides an 'Upcoming Events' block.
+ * Provides an 'Upcoming Events' block for the Drupal Calendar module.
+ *
+ * Displays a table of the next five upcoming events.
  *
  * @Block(
  *   id = "drupal_calendar_upcoming_block",
@@ -16,6 +19,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class UpcomingEventsBlock extends BlockBase implements BlockPluginInterface, ContainerFactoryPluginInterface {
+
+  /**
+   * {@inheritdoc}
+   */
   public function build() {
     $events = [];
     if (class_exists('Drupal') && method_exists('Drupal', 'getContainer')) {
@@ -32,7 +39,7 @@ class UpcomingEventsBlock extends BlockBase implements BlockPluginInterface, Con
         $upcoming[] = $event;
       }
     }
-    usort($upcoming, function($a, $b) {
+    usort($upcoming, function ($a, $b) {
       return strtotime($a['date']) - strtotime($b['date']);
     });
     $rows = [];
@@ -49,7 +56,24 @@ class UpcomingEventsBlock extends BlockBase implements BlockPluginInterface, Con
       '#empty' => 'No upcoming events.',
     ];
   }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container.
+   * @param array $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   *
+   * @return static
+   *   Returns an instance of the block plugin.
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static($configuration, $plugin_id, $plugin_definition);
   }
+
 }
