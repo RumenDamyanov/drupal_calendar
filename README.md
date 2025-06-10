@@ -1,7 +1,7 @@
 # Drupal Calendar Module
 
-[![CI](https://github.com/RumenDamyanov/drupal-calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/RumenDamyanov/drupal-calendar/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/RumenDamyanov/drupal-calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/RumenDamyanov/drupal-calendar)
+[![CI](https://github.com/RumenDamyanov/drupal_calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/RumenDamyanov/drupal_calendar/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/RumenDamyanov/drupal_calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/RumenDamyanov/drupal_calendar)
 
 A modern, feature-rich calendar module for Drupal 11+ that supports event creation, ICS file generation, invitations, RSVP, recurring events, admin logging, REST API, and more.
 
@@ -21,6 +21,14 @@ A modern, feature-rich calendar module for Drupal 11+ that supports event creati
 - Unit and functional tests
 
 ## Installation
+
+You can install this module via Composer:
+
+```sh
+composer require rumenx/drupal_calendar
+```
+
+Or manually:
 
 1. Place the module in your `modules/custom` directory.
 2. Run `composer install` to install dependencies (rumenx/php-calendar).
