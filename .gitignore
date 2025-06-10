@@ -35,7 +35,5 @@ composer.lock
 
 # Ignore Drupal cache and temporary files
 .phpunit.result.cache
+.phpunit.cache/
 build/
-
-# Ignore workflow-specific PHPUnit config
-# .github/phpunit.xml.dist

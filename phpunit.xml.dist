@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         bootstrap="vendor/autoload.php"
          colors="true"
-         stopOnFailure="false"
          failOnWarning="true"
-         failOnRisky="true">
+         failOnRisky="true"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
+         stopOnSkipped="false"
+         stopOnIncomplete="false"
+         stopOnError="false">
     <testsuites>
         <testsuite name="Unit">
             <directory>./tests/src/Unit</directory>
@@ -12,13 +18,13 @@
             <directory>./tests/src/Functional</directory>
         </testsuite>
     </testsuites>
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory>./src/Service/</directory>
-        </include>
-    </coverage>
     <php>
         <env name="SIMPLETEST_BASE_URL" value="http://127.0.0.1:8888"/>
         <env name="SIMPLETEST_DB" value=""/>
     </php>
+    <source>
+        <include>
+            <directory>./src/Service/</directory>
+        </include>
+    </source>
 </phpunit>

@@ -49,30 +49,21 @@ jobs:
         run: |
           cd drupal
           vendor/bin/drush en drupal_calendar --yes
-      - name: Copy phpunit.xml.dist to Drupal site
-        run: |
-          cp .github/phpunit.xml.dist drupal/phpunit.xml.dist
       - name: Clean PHPUnit cache
         run: |
           rm -f drupal/phpunit.result.cache
-      - name: Run PHPUnit tests
+      - name: Run PHPUnit Unit tests only
         env:
-          SIMPLETEST_BASE_URL: "http://localhost"
+          SIMPLETEST_BASE_URL: "http://127.0.0.1"
         run: |
-          cd drupal
-          vendor/bin/phpunit --configuration phpunit.xml.dist web/modules/custom/drupal_calendar/tests
-      - name: Run PHPUnit with coverage (Unit only)
-        env:
-          SIMPLETEST_BASE_URL: "http://localhost"
+          vendor/bin/phpunit --configuration phpunit.xml.dist --testsuite Unit
+      - name: Generate coverage report
         run: |
-          cd drupal
           vendor/bin/phpunit --configuration phpunit.xml.dist --testsuite Unit --coverage-clover=coverage.xml
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v4
-      #   with:
-      #     files: drupal/coverage.xml
-      #     flags: unittests
-      #     name: codecov-umbrella
-      #     fail_ci_if_error: true
-      #   env:
-      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

@@ -1,6 +1,7 @@
 # Drupal Calendar Module
 
-[![CI](https://github.com/RumenDamyanov/drupal-calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/rumenx/drupal-calendar/actions/workflows/ci.yml)
+[![CI](https://github.com/RumenDamyanov/drupal-calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/RumenDamyanov/drupal-calendar/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/RumenDamyanov/drupal-calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/RumenDamyanov/drupal-calendar)
 
 A modern, feature-rich calendar module for Drupal 11+ that supports event creation, ICS file generation, invitations, RSVP, recurring events, admin logging, REST API, and more.
 

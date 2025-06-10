@@ -27,7 +27,16 @@ class CalendarService {
     }
     // Fallback: simple ICS generator
     $dtstamp = gmdate('Ymd\THis\Z');
-    $dtstart = gmdate('Ymd\THis\Z', strtotime($event['date']));
+    $date = $event['date'] ?? '';
+    $title = $event['title'] ?? '';
+    $description = $event['description'] ?? '';
+    $dtstart = '';
+    if ($date !== '' && is_string($date)) {
+      $timestamp = strtotime($date);
+      $dtstart = gmdate('Ymd\THis\Z', $timestamp !== false ? $timestamp : 0);
+    } else {
+      $dtstart = gmdate('Ymd\THis\Z', 0);
+    }
     $uid = uniqid('event-');
     $ics = "BEGIN:VCALENDAR\r\n" .
            "VERSION:2.0\r\n" .
@@ -36,8 +45,8 @@ class CalendarService {
            "UID:$uid\r\n" .
            "DTSTAMP:$dtstamp\r\n" .
            "DTSTART:$dtstart\r\n" .
-           "SUMMARY:" . addcslashes($event['title'], ",;\\") . "\r\n" .
-           "DESCRIPTION:" . addcslashes($event['description'], ",;\\") . "\r\n" .
+           "SUMMARY:" . addcslashes((string)$title, ",;\\") . "\r\n" .
+           "DESCRIPTION:" . addcslashes((string)$description, ",;\\") . "\r\n" .
            "END:VEVENT\r\n" .
            "END:VCALENDAR\r\n";
     return $ics;
