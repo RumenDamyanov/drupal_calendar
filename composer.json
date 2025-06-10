@@ -1,9 +1,17 @@
 {
-  "name": "drupal/drupal_calendar",
-  "description": "Drupal 11 module for calendar event creation, ICS generation, and event management.",
+  "name": "rumenx/drupal_calendar",
+  "description": "Drupal 11+ module for calendar event creation, ICS generation, and event management.",
   "type": "drupal-module",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Rumen Damyanov",
+      "email": "contact@rumenx.com"
+    }
+  ],
   "require": {
     "php": ">=8.3",
+    "drupal/core": "^11.0",
     "rumenx/php-calendar": "^1.0.0"
   },
   "require-dev": {
@@ -11,17 +19,21 @@
     "squizlabs/php_codesniffer": "^3.7",
     "drupal/coder": "^8.3"
   },
-  "minimum-stability": "beta",
-  "prefer-stable": true,
   "autoload": {
     "psr-4": {
       "Drupal\\drupal_calendar\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Drupal\\drupal_calendar\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "beta",
+  "prefer-stable": true,
   "scripts": {
-    "test": "phpunit --testsuite Unit",
-    "coverage": "phpunit --testsuite Unit --coverage-text",
-    "lint": "phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme src/"
+    "lint": "vendor/bin/phpcs --standard=Drupal src/",
+    "test": "vendor/bin/phpunit --testsuite Unit --coverage-text"
   },
   "config": {
     "allow-plugins": {
