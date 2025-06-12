@@ -1,5 +1,3 @@
-# Renamed from calendar_plus.libraries.yml
-
 libraries:
   fullcalendar:
     version: 6.1.11

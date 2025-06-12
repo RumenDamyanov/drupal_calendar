@@ -1,5 +1,3 @@
-# Renamed from drupal-calendar.services.yml
-
 services:
   calendar_plus.calendar_service:
     class: 'Drupal\calendar_plus\Service\CalendarService'

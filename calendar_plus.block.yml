@@ -1,5 +1,3 @@
-# Renamed from drupal-calendar.block.yml
-
 calendar_plus.upcoming_block:
   class: Drupal\calendar_plus\Plugin\Block\UpcomingEventsBlock
   admin_label: 'Upcoming Events'

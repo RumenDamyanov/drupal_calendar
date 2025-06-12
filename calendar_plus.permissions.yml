@@ -1,4 +1,3 @@
-# Renamed from drupal-calendar.permissions.yml
 create calendar plus events:
   title: 'Create Calendar Plus events'
   description: 'Allow users to create new calendar events.'
