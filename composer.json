@@ -1,5 +1,5 @@
 {
-  "name": "rumenx/drupal_calendar",
+  "name": "drupal/calendar_plus",
   "description": "Drupal 11+ module for calendar event creation, ICS generation, and event management.",
   "type": "drupal-module",
   "license": "MIT",
@@ -21,12 +21,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Drupal\\drupal_calendar\\": "src/"
+      "Drupal\\calendar_plus\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Drupal\\drupal_calendar\\Tests\\": "tests/"
+      "Drupal\\Tests\\calendar_plus\\": "tests/src/"
     }
   },
   "minimum-stability": "beta",

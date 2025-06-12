@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_calendar\Event;
+namespace Drupal\calendar_plus\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
@@ -13,7 +13,7 @@ class CalendarEventCreatedEvent extends Event {
   /**
    * The event name for calendar event creation.
    */
-  const EVENT_NAME = 'drupal_calendar.event_created';
+  const EVENT_NAME = 'calendar_plus.event_created';
 
   /**
    * The event data array.

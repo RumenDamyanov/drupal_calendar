@@ -1,6 +1,0 @@
-# Renamed from drupal-calendar.services.yml
-
-services:
-  drupal_calendar.calendar_service:
-    class: 'Drupal\drupal_calendar\Service\CalendarService'
-    arguments: []

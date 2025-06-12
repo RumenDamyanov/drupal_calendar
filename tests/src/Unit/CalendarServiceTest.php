@@ -1,13 +1,13 @@
 <?php
-namespace Drupal\Tests\drupal_calendar\Unit;
+namespace Drupal\Tests\calendar_plus\Unit;
 
-use Drupal\drupal_calendar\Service\CalendarService;
+use Drupal\calendar_plus\Service\CalendarService;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Unit test for CalendarService ICS generation.
  *
- * @group drupal_calendar
+ * @group calendar_plus
  */
 class CalendarServiceTest extends TestCase {
   /**
@@ -20,7 +20,7 @@ class CalendarServiceTest extends TestCase {
     if (!class_exists('Rumenx\\PhpCalendar\\IcsGenerator', false)) {
       eval('namespace Rumenx\\PhpCalendar; class IcsGenerator { public function generate($event) { return "ICS_FROM_LIBRARY"; } }');
     }
-    $service = new \Drupal\drupal_calendar\Service\CalendarService();
+    $service = new \Drupal\calendar_plus\Service\CalendarService();
     $event = [ 'title' => 'Lib Event', 'date' => '2025-06-20T10:00:00', 'description' => 'From library.' ];
     $ics = $service->generateIcs($event);
     $this->assertSame('ICS_FROM_LIBRARY', $ics);
@@ -35,7 +35,7 @@ class CalendarServiceTest extends TestCase {
     if (!class_exists('Rumenx\\PhpCalendar\\IcsGenerator', false)) {
       eval('namespace Rumenx\\PhpCalendar; class IcsGenerator { public function generate($event) { return null; } }');
     }
-    $service = new \Drupal\drupal_calendar\Service\CalendarService();
+    $service = new \Drupal\calendar_plus\Service\CalendarService();
     $event = [ 'title' => 'Lib Event', 'date' => '2025-06-20T10:00:00', 'description' => 'From library.' ];
     $ics = $service->generateIcs($event);
     $this->assertIsString($ics);
@@ -51,7 +51,7 @@ class CalendarServiceTest extends TestCase {
    */
   public function testFallbackCodePathAlwaysCovered() {
     // Do not check for the class; in a separate process, fallback will be used.
-    $service = new \Drupal\drupal_calendar\Service\CalendarService();
+    $service = new \Drupal\calendar_plus\Service\CalendarService();
     $event = [
       'title' => 'Fallback Coverage',
       'date' => '2025-06-30T12:00:00',

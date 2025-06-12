@@ -1,7 +1,7 @@
-# Drupal Calendar Module
+# Calendar Plus Module
 
-[![CI](https://github.com/RumenDamyanov/drupal_calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/RumenDamyanov/drupal_calendar/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/RumenDamyanov/drupal_calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/RumenDamyanov/drupal_calendar)
+[![CI](https://github.com/RumenDamyanov/calendar_plus/actions/workflows/ci.yml/badge.svg)](https://github.com/RumenDamyanov/calendar_plus/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/RumenDamyanov/calendar_plus/branch/master/graph/badge.svg)](https://codecov.io/gh/RumenDamyanov/calendar_plus)
 
 A modern, feature-rich calendar module for Drupal 11+ that supports event creation, ICS file generation, invitations, RSVP, recurring events, admin logging, REST API, and more.
 
@@ -25,26 +25,27 @@ A modern, feature-rich calendar module for Drupal 11+ that supports event creati
 You can install this module via Composer:
 
 ```sh
-composer require rumenx/drupal_calendar
+composer require drupal/calendar_plus
 ```
 
 Or manually:
 
-1. Place the module in your `modules/custom` directory.
-2. Run `composer install` to install dependencies (rumenx/php-calendar).
-3. Enable the module via Drupal admin or Drush.
+1. Download the module from the [Drupal.org project page](https://www.drupal.org/project/calendar_plus) or clone from the [Drupal.org GitLab repository](https://git.drupalcode.org/project/calendar_plus.git).
+2. Place the module in your `modules/custom` directory.
+3. Run `composer install` to install dependencies (`drupal/php-calendar`).
+4. Enable the module via Drupal admin or Drush.
 
 ## Configuration
 
-- Visit `/admin/config/drupal-calendar` to configure settings (ICS handling, email templates, reminders, etc).
+- Visit `/admin/config/calendar-plus` to configure settings (ICS handling, email templates, reminders, etc).
 - Place the "Upcoming Events" block as needed.
-- Access the admin event list at `/admin/content/drupal-calendar/events`.
+- Access the admin event list at `/admin/content/calendar-plus/events`.
 
 ## REST API
 
-- List events: `GET /api/drupal-calendar/events?_format=json`
-- Get event: `GET /api/drupal-calendar/events/{event_id}?_format=json`
-- Get RSVPs: `GET /api/drupal-calendar/events/{event_id}/rsvps?_format=json`
+- List events: `GET /api/calendar-plus/events?_format=json`
+- Get event: `GET /api/calendar-plus/events/{event_id}?_format=json`
+- Get RSVPs: `GET /api/calendar-plus/events/{event_id}/rsvps?_format=json`
 
 ## Permissions
 
@@ -59,8 +60,8 @@ Or manually:
 
 - **Functional tests:** Must be run inside a full Drupal site:
 
-  - With Drush: `drush test:run drupal_calendar`
-  - Or: `php core/scripts/run-tests.sh --module drupal_calendar`
+  - With Drush: `drush test:run calendar_plus`
+  - Or: `php core/scripts/run-tests.sh --module calendar_plus`
 
 Unit tests do not require a Drupal site. Functional tests require a working Drupal environment and will fail if run with plain PHPUnit.
 

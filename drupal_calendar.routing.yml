@@ -1,9 +1,0 @@
-# Renamed from drupal-calendar.routing.yml
-
-drupal_calendar.admin:
-  path: '/admin/config/drupal-calendar'
-  defaults:
-    _form: '\Drupal\drupal_calendar\Form\CalendarAdminForm'
-    _title: 'Drupal Calendar Settings'
-  requirements:
-    _permission: 'administer site configuration'

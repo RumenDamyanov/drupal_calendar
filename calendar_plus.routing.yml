@@ -1,0 +1,9 @@
+# Renamed from drupal-calendar.routing.yml
+
+calendar_plus.admin:
+  path: '/admin/config/calendar-plus'
+  defaults:
+    _form: '\Drupal\calendar_plus\Form\CalendarAdminForm'
+    _title: 'Calendar Plus Settings'
+  requirements:
+    _permission: 'administer site configuration'

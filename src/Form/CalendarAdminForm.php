@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_calendar\Form;
+namespace Drupal\calendar_plus\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -17,14 +17,14 @@ class CalendarAdminForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'drupal_calendar_admin_settings';
+    return 'calendar_plus_admin_settings';
   }
 
   /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return ['drupal_calendar.settings'];
+    return ['calendar_plus.settings'];
   }
 
   /**
@@ -39,7 +39,7 @@ class CalendarAdminForm extends ConfigFormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('drupal_calendar.settings');
+    $config = $this->config('calendar_plus.settings');
     $form['ics_storage'] = [
       '#type' => 'select',
       '#title' => $this->t('ICS File Storage'),
@@ -82,7 +82,7 @@ class CalendarAdminForm extends ConfigFormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('drupal_calendar.settings')
+    $this->config('calendar_plus.settings')
       ->set('ics_storage', $form_state->getValue('ics_storage'))
       ->set('email_subject', $form_state->getValue('email_subject'))
       ->set('email_body', $form_state->getValue('email_body'))

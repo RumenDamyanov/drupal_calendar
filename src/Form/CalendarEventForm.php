@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_calendar\Form;
+namespace Drupal\calendar_plus\Form;
 
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormBase;
@@ -18,7 +18,7 @@ class CalendarEventForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'drupal_calendar_event_form';
+    return 'calendar_plus_event_form';
   }
 
   /**
@@ -145,11 +145,11 @@ class CalendarEventForm extends FormBase {
       'rsvps' => [],
     ];
     // Generate ICS file content using the service.
-    $ics = \Drupal::service('drupal_calendar.calendar_service')->generateIcs($event);
+    $ics = \Drupal::service('calendar_plus.calendar_service')->generateIcs($event);
     // Get admin setting for ICS storage.
-    $ics_storage = \Drupal::config('drupal_calendar.settings')->get('ics_storage') ?: 'entity';
+    $ics_storage = \Drupal::config('calendar_plus.settings')->get('ics_storage') ?: 'entity';
     // Store event log (use state API; later, use entity or custom table)
-    $events = \Drupal::state()->get('drupal_calendar.events', []);
+    $events = \Drupal::state()->get('calendar_plus.events', []);
     $event['ics'] = $ics;
     $event['created'] = time();
     // Store creator email when event is created (if available)
@@ -167,7 +167,7 @@ class CalendarEventForm extends FormBase {
     elseif ($ics_storage === 'email') {
       // Send ICS as email attachment to site mail.
       $mailManager = \Drupal::service('plugin.manager.mail');
-      $module = 'drupal_calendar';
+      $module = 'calendar_plus';
       $key = 'event_ics';
       $to = \Drupal::config('system.site')->get('mail');
       $params['subject'] = 'New Event: ' . $event['title'];
@@ -184,7 +184,7 @@ class CalendarEventForm extends FormBase {
       // Send invitations if attendees are provided and email mode is enabled.
       if ($ics_storage === 'email' && !empty($event['attendees'])) {
         // Get admin-configured email subject/body and replace tokens.
-        $config = \Drupal::config('drupal_calendar.settings');
+        $config = \Drupal::config('calendar_plus.settings');
         $email_subject = $config->get('email_subject') ?: 'Invitation: [event_title]';
         $email_body = $config->get('email_body') ?: "You are invited to [event_title] on [event_date].\n[event_description]";
 
@@ -211,7 +211,7 @@ class CalendarEventForm extends FormBase {
       }
     }
     $events[] = $event;
-    \Drupal::state()->set('drupal_calendar.events', $events);
+    \Drupal::state()->set('calendar_plus.events', $events);
     // Display message.
     \Drupal::messenger()->addMessage('Event created and ICS generated.');
   }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_calendar\Service;
+namespace Drupal\calendar_plus\Service;
 
 use Rumenx\PhpCalendar\IcsGenerator;
 

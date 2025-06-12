@@ -1,10 +1,10 @@
 # Renamed from drupal-calendar.permissions.yml
-create drupal calendar events:
-  title: 'Create Drupal Calendar events'
+create calendar plus events:
+  title: 'Create Calendar Plus events'
   description: 'Allow users to create new calendar events.'
-view drupal calendar events:
-  title: 'View Drupal Calendar events'
+view calendar plus events:
+  title: 'View Calendar Plus events'
   description: 'Allow users to view calendar events.'
-manage drupal calendar invitations:
-  title: 'Manage Drupal Calendar invitations and RSVPs'
+manage calendar plus invitations:
+  title: 'Manage Calendar Plus invitations and RSVPs'
   description: 'Allow users to manage invitations and RSVP responses.'

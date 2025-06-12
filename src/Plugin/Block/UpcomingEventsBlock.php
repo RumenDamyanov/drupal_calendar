@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_calendar\Plugin\Block;
+namespace Drupal\calendar_plus\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Block\BlockPluginInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Displays a table of the next five upcoming events.
  *
  * @Block(
- *   id = "drupal_calendar_upcoming_block",
+ *   id = "calendar_plus_upcoming_block",
  *   admin_label = @Translation("Upcoming Events"),
  *   category = @Translation("Calendar")
  * )
@@ -28,7 +28,7 @@ class UpcomingEventsBlock extends BlockBase implements BlockPluginInterface, Con
     if (class_exists('Drupal') && method_exists('Drupal', 'getContainer')) {
       $container = \Drupal::getContainer();
       if ($container->has('state')) {
-        $events = $container->get('state')->get('drupal_calendar.events', []);
+        $events = $container->get('state')->get('calendar_plus.events', []);
       }
     }
     $now = time();

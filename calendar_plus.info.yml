@@ -1,4 +1,4 @@
-name: 'Drupal Calendar'
+name: 'Calendar Plus'
 type: module
 description: 'Provides calendar event creation, ICS generation, and event management.'
 core_version_requirement: ^11

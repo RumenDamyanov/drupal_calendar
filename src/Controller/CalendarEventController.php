@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_calendar\Controller;
+namespace Drupal\calendar_plus\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,14 +17,14 @@ class CalendarEventController {
   /**
    * The calendar service.
    *
-   * @var \Drupal\drupal_calendar\Service\CalendarService
+   * @var \Drupal\calendar_plus\Service\CalendarService
    */
   protected $calendarService;
 
   /**
    * Constructs a CalendarEventController object.
    *
-   * @param \Drupal\drupal_calendar\Service\CalendarService $calendarService
+   * @param \Drupal\calendar_plus\Service\CalendarService $calendarService
    *   The calendar service.
    */
   public function __construct($calendarService) {
@@ -42,7 +42,7 @@ class CalendarEventController {
    */
   public static function create($container) {
     return new static(
-      $container->get('drupal_calendar.calendar_service')
+      $container->get('calendar_plus.calendar_service')
     );
   }
 
@@ -57,7 +57,7 @@ class CalendarEventController {
     static $static_events = [];
     $events = $static_events;
     if (function_exists('drupal_container') && drupal_container()->has('state')) {
-      $events = drupal_container()->get('state')->get('drupal_calendar.events', []);
+      $events = drupal_container()->get('state')->get('calendar_plus.events', []);
     }
     $header = [
       'Title',
@@ -140,7 +140,7 @@ class CalendarEventController {
     if (class_exists('Drupal') && method_exists('Drupal', 'getContainer')) {
       $container = call_user_func(['Drupal', 'getContainer']);
       if ($container && $container->has('state')) {
-        $events = $container->get('state')->get('drupal_calendar.events', []);
+        $events = $container->get('state')->get('calendar_plus.events', []);
       }
     }
     if (!isset($events[$event_id]) || empty($events[$event_id]['ics'])) {
@@ -168,21 +168,21 @@ class CalendarEventController {
     $response_message = 'Invalid RSVP.';
     if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
       $container = call_user_func(['Drupal', 'getContainer']);
-      $events = $container->get('state')->get('drupal_calendar.events', []);
+      $events = $container->get('state')->get('calendar_plus.events', []);
       if (isset($events[$event_id]) && $events[$event_id]['rsvp_enabled']) {
         // Show RSVP form (Yes/No) and current status if available.
         $current = $events[$event_id]['rsvps'][$email] ?? NULL;
         if ($request->getMethod() === 'POST') {
           $rsvp = $request->request->get('rsvp');
           $events[$event_id]['rsvps'][$email] = $rsvp;
-          $container->get('state')->set('drupal_calendar.events', $events);
+          $container->get('state')->set('calendar_plus.events', $events);
           // Notify event creator if available.
           if (!empty($events[$event_id]['creator_email']) && filter_var($events[$event_id]['creator_email'], FILTER_VALIDATE_EMAIL)) {
             $params = [
               'subject' => 'RSVP Update for ' . $events[$event_id]['title'],
               'body' => 'User ' . $email . ' responded: ' . $rsvp . ' to event "' . $events[$event_id]['title'] . '".',
             ];
-            $container->get('plugin.manager.mail')->mail('drupal_calendar', 'rsvp_update', $events[$event_id]['creator_email'], NULL, $params);
+            $container->get('plugin.manager.mail')->mail('calendar_plus', 'rsvp_update', $events[$event_id]['creator_email'], NULL, $params);
           }
           $response_message = 'Thank you for your response: ' . htmlspecialchars($rsvp) . '. You can update your RSVP at any time.';
         }
@@ -211,7 +211,7 @@ class CalendarEventController {
     $request = \Drupal::request();
     $mode = $request->query->get('view_mode', 'simple');
     $container = call_user_func(['Drupal', 'getContainer']);
-    $events = $container->get('state')->get('drupal_calendar.events', []);
+    $events = $container->get('state')->get('calendar_plus.events', []);
     $build = [];
     $build['switch'] = [
       '#markup' => '<a href="/calendar?view_mode=simple" style="' . ($mode === 'simple' ? 'font-weight:bold;' : '') . '">Simple List View</a>' .
@@ -298,7 +298,7 @@ class CalendarEventController {
     if (class_exists('Drupal') && method_exists('Drupal', 'getContainer')) {
       $container = call_user_func(['Drupal', 'getContainer']);
       if ($container->has('state')) {
-        $logs = $container->get('state')->get('drupal_calendar.logs', []);
+        $logs = $container->get('state')->get('calendar_plus.logs', []);
       }
     }
     $header = ['Time', 'Type', 'Message', 'Context'];
@@ -328,7 +328,7 @@ class CalendarEventController {
   public function apiEvents() {
     try {
       $container = call_user_func(['Drupal', 'getContainer']);
-      $events = $container->get('state')->get('drupal_calendar.events', []);
+      $events = $container->get('state')->get('calendar_plus.events', []);
       return new JsonResponse(array_values($events));
     }
     catch (\Exception $e) {
@@ -351,7 +351,7 @@ class CalendarEventController {
   public function apiEvent($event_id) {
     try {
       $container = call_user_func(['Drupal', 'getContainer']);
-      $events = $container->get('state')->get('drupal_calendar.events', []);
+      $events = $container->get('state')->get('calendar_plus.events', []);
       if (!isset($events[$event_id])) {
         return new JsonResponse([
           'error' => 'Event not found',
@@ -380,7 +380,7 @@ class CalendarEventController {
   public function apiRsvps($event_id) {
     try {
       $container = call_user_func(['Drupal', 'getContainer']);
-      $events = $container->get('state')->get('drupal_calendar.events', []);
+      $events = $container->get('state')->get('calendar_plus.events', []);
       if (!isset($events[$event_id])) {
         return new JsonResponse([
           'error' => 'Event not found',
